@@ -2,6 +2,8 @@ import express from 'express';
 import cors from 'cors';
 import "dotenv/config";
 import mongoose from 'mongoose';
+import userRouter from './routes/user.route';
+import authRouter from './routes/auth.route';
 
 
 const mongoUri = process.env.MONGO;
@@ -9,22 +11,23 @@ if (!mongoUri) {
     throw new Error("MONGO environment variable is not defined");
 }
 
-
-// ✅ Mongoose settings
-mongoose.set("strictQuery", true); // Suppress deprecated warning for strict mode
-mongoose.set("autoIndex", true); // Automatically create indexes
-mongoose.set("bufferCommands", false); // Disable command buffering
+mongoose.set("strictQuery", true)
 
 mongoose
-    .connect(mongoUri)
+    .connect("mongodb+srv://mazenafifi1999:mazenafifi1999@locatmee.fdjv6.mongodb.net/?retryWrites=true&w=majority&appName=locatMee")
     .then(() => console.log("connected to database successfully"))
-    .catch(() => console.log("failed to connect to database"))
+    .catch((error) => console.log("failed to connect to database", error))
 const app = express();
 
 
 app.use(express.json())
 app.use(cors())
 
-app.listen(3000, () => {
-    console.log("Server is running on port 3000")
+
+app.use('/api/user', userRouter)
+app.use('/api/auth', authRouter)
+
+app.listen(7000, () => {
+    console.log("Server is running on port 7000")
 })
+
