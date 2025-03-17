@@ -1,26 +1,30 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import bcrypt from 'bcryptjs';
 import User from "../models/user.model";
+import { errorHandler } from "../utils/error";
 
-export const SignUp = async (req: Request, res: Response): Promise<void> => {
+export const SignUp = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     const { username, email, password } = req.body;
 
 
     if (!email || !password) {
-        res.status(400).json({ message: "Email and password are required" });
+        next(errorHandler(400, "Email and password are required"));
+        // res.status(400).json({ message: "Email and password are required" });
         return;
     }
 
     try {
         const existingUser = await User.findOne({ email });
         if (existingUser) {
-            res.status(400).json({ message: "Email already exists" });
+            next(errorHandler(400, "Email already exists"));
+            // res.status(400).json({ message: "Email already exists" });
             return;
         }
 
         const existingUserName = await User.findOne({ username });
         if (existingUserName) {
-            res.status(400).json({ message: "Username already exists" });
+            next(errorHandler(400, "Username already exists"));
+            // res.status(400).json({ message: "Username already exists" });
             return;
         }
 
@@ -46,7 +50,10 @@ export const SignUp = async (req: Request, res: Response): Promise<void> => {
             user: rest
         });
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: "Failed to create user" });
+        if (error instanceof Error) {
+            next(errorHandler(500, error.message))
+        } else {
+            next(errorHandler(500, "An unknown error occurred"))
+        }
     }
 };
