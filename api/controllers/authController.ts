@@ -47,6 +47,7 @@ export const SignUp = async (req: Request, res: Response, next: NextFunction): P
 
         res.status(201).json({
             message: "User created successfully",
+            status: true,
             user: rest
         });
     } catch (error) {
